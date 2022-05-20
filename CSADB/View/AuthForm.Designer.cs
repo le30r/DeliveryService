@@ -66,6 +66,7 @@
             this.loginButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.loginButton.UseAccentColor = false;
             this.loginButton.UseVisualStyleBackColor = true;
+            this.loginButton.Click += new System.EventHandler(this.loginButton_Click);
             // 
             // materialLabel1
             // 
