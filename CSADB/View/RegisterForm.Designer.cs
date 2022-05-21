@@ -57,7 +57,7 @@
             this.loginTextBox.Depth = 0;
             this.loginTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.loginTextBox.HideSelection = true;
-            this.loginTextBox.Hint = "Логин";
+            this.loginTextBox.Hint = "Логин*";
             this.loginTextBox.LeadingIcon = null;
             this.loginTextBox.Location = new System.Drawing.Point(20, 99);
             this.loginTextBox.MaxLength = 32767;
@@ -77,6 +77,7 @@
             this.loginTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.loginTextBox.TrailingIcon = null;
             this.loginTextBox.UseSystemPasswordChar = false;
+            this.loginTextBox.Click += new System.EventHandler(this.loginTextBox_Click);
             this.loginTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.loginTextBox_Validating);
             // 
             // passwordTextBox
@@ -87,13 +88,13 @@
             this.passwordTextBox.Depth = 0;
             this.passwordTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.passwordTextBox.HideSelection = true;
-            this.passwordTextBox.Hint = "Пароль";
+            this.passwordTextBox.Hint = "Пароль*";
             this.passwordTextBox.LeadingIcon = null;
             this.passwordTextBox.Location = new System.Drawing.Point(20, 153);
             this.passwordTextBox.MaxLength = 32767;
             this.passwordTextBox.MouseState = MaterialSkin.MouseState.OUT;
             this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.PasswordChar = '\0';
+            this.passwordTextBox.PasswordChar = '*';
             this.passwordTextBox.PrefixSuffixText = null;
             this.passwordTextBox.ReadOnly = false;
             this.passwordTextBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -117,7 +118,7 @@
             this.nameTextBox.Depth = 0;
             this.nameTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.nameTextBox.HideSelection = true;
-            this.nameTextBox.Hint = "Имя";
+            this.nameTextBox.Hint = "Имя*";
             this.nameTextBox.LeadingIcon = null;
             this.nameTextBox.Location = new System.Drawing.Point(377, 153);
             this.nameTextBox.MaxLength = 32767;
@@ -171,7 +172,7 @@
             this.lastNameTextBox.Depth = 0;
             this.lastNameTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.lastNameTextBox.HideSelection = true;
-            this.lastNameTextBox.Hint = "Фамилия";
+            this.lastNameTextBox.Hint = "Фамилия*";
             this.lastNameTextBox.LeadingIcon = null;
             this.lastNameTextBox.Location = new System.Drawing.Point(377, 99);
             this.lastNameTextBox.MaxLength = 32767;
@@ -233,7 +234,7 @@
             this.emailTextBox.HideSelection = true;
             this.emailTextBox.Hint = "E-mail";
             this.emailTextBox.LeadingIcon = null;
-            this.emailTextBox.Location = new System.Drawing.Point(377, 320);
+            this.emailTextBox.Location = new System.Drawing.Point(377, 322);
             this.emailTextBox.MaxLength = 32767;
             this.emailTextBox.MouseState = MaterialSkin.MouseState.OUT;
             this.emailTextBox.Name = "emailTextBox";
@@ -246,7 +247,7 @@
             this.emailTextBox.SelectionStart = 0;
             this.emailTextBox.ShortcutsEnabled = true;
             this.emailTextBox.Size = new System.Drawing.Size(409, 48);
-            this.emailTextBox.TabIndex = 9;
+            this.emailTextBox.TabIndex = 8;
             this.emailTextBox.TabStop = false;
             this.emailTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.emailTextBox.TrailingIcon = null;
@@ -266,7 +267,7 @@
             this.registerButton.Name = "registerButton";
             this.registerButton.NoAccentTextColor = System.Drawing.Color.Empty;
             this.registerButton.Size = new System.Drawing.Size(126, 36);
-            this.registerButton.TabIndex = 10;
+            this.registerButton.TabIndex = 11;
             this.registerButton.Text = "Регистрация";
             this.registerButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.registerButton.UseAccentColor = false;
@@ -281,13 +282,13 @@
             this.repeatTextBox.Depth = 0;
             this.repeatTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.repeatTextBox.HideSelection = true;
-            this.repeatTextBox.Hint = "Повторите пароль";
+            this.repeatTextBox.Hint = "Повторите пароль*";
             this.repeatTextBox.LeadingIcon = null;
             this.repeatTextBox.Location = new System.Drawing.Point(20, 207);
             this.repeatTextBox.MaxLength = 32767;
             this.repeatTextBox.MouseState = MaterialSkin.MouseState.OUT;
             this.repeatTextBox.Name = "repeatTextBox";
-            this.repeatTextBox.PasswordChar = '\0';
+            this.repeatTextBox.PasswordChar = '*';
             this.repeatTextBox.PrefixSuffixText = null;
             this.repeatTextBox.ReadOnly = false;
             this.repeatTextBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -325,9 +326,9 @@
             // 
             // birthdayPicker
             // 
-            this.birthdayPicker.Location = new System.Drawing.Point(143, 320);
+            this.birthdayPicker.Location = new System.Drawing.Point(150, 320);
             this.birthdayPicker.Name = "birthdayPicker";
-            this.birthdayPicker.Size = new System.Drawing.Size(189, 20);
+            this.birthdayPicker.Size = new System.Drawing.Size(182, 20);
             this.birthdayPicker.TabIndex = 13;
             this.birthdayPicker.Visible = false;
             // 
@@ -339,9 +340,9 @@
             this.birthdayLabel.Location = new System.Drawing.Point(19, 320);
             this.birthdayLabel.MouseState = MaterialSkin.MouseState.HOVER;
             this.birthdayLabel.Name = "birthdayLabel";
-            this.birthdayLabel.Size = new System.Drawing.Size(118, 19);
+            this.birthdayLabel.Size = new System.Drawing.Size(125, 19);
             this.birthdayLabel.TabIndex = 14;
-            this.birthdayLabel.Text = "Дата рождения";
+            this.birthdayLabel.Text = "Дата рождения*";
             this.birthdayLabel.Visible = false;
             // 
             // cityCombobox
@@ -369,7 +370,7 @@
             this.cityCombobox.Name = "cityCombobox";
             this.cityCombobox.Size = new System.Drawing.Size(409, 49);
             this.cityCombobox.StartIndex = 0;
-            this.cityCombobox.TabIndex = 15;
+            this.cityCombobox.TabIndex = 9;
             this.cityCombobox.Visible = false;
             // 
             // carCheckbox
@@ -384,7 +385,7 @@
             this.carCheckbox.ReadOnly = false;
             this.carCheckbox.Ripple = true;
             this.carCheckbox.Size = new System.Drawing.Size(165, 37);
-            this.carCheckbox.TabIndex = 16;
+            this.carCheckbox.TabIndex = 10;
             this.carCheckbox.Text = "Есть автомобиль";
             this.carCheckbox.UseVisualStyleBackColor = true;
             this.carCheckbox.Visible = false;
@@ -402,7 +403,7 @@
             this.phoneTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.phoneTextBox.HidePromptOnLeave = false;
             this.phoneTextBox.HideSelection = true;
-            this.phoneTextBox.Hint = "Номер телефона";
+            this.phoneTextBox.Hint = "Номер телефона*";
             this.phoneTextBox.InsertKeyMode = System.Windows.Forms.InsertKeyMode.Default;
             this.phoneTextBox.LeadingIcon = null;
             this.phoneTextBox.Location = new System.Drawing.Point(377, 267);
@@ -424,7 +425,7 @@
             this.phoneTextBox.ShortcutsEnabled = true;
             this.phoneTextBox.Size = new System.Drawing.Size(409, 48);
             this.phoneTextBox.SkipLiterals = true;
-            this.phoneTextBox.TabIndex = 17;
+            this.phoneTextBox.TabIndex = 7;
             this.phoneTextBox.TabStop = false;
             this.phoneTextBox.Text = "+7(   )       -";
             this.phoneTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -446,7 +447,6 @@
             this.Controls.Add(this.CourierSwitch);
             this.Controls.Add(this.repeatTextBox);
             this.Controls.Add(this.registerButton);
-            this.Controls.Add(this.emailTextBox);
             this.Controls.Add(this.middleNameTextBox);
             this.Controls.Add(this.lastNameTextBox);
             this.Controls.Add(this.materialLabel2);
@@ -455,7 +455,10 @@
             this.Controls.Add(this.passwordTextBox);
             this.Controls.Add(this.loginTextBox);
             this.Controls.Add(this.cityCombobox);
+            this.Controls.Add(this.emailTextBox);
+            this.MaximizeBox = false;
             this.Name = "RegisterForm";
+            this.Sizable = false;
             this.Text = "Регистрация";
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.ResumeLayout(false);

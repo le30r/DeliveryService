@@ -12,6 +12,11 @@ namespace CSADB.Model
         {
         }
 
+        public DeliveryServiceEDM(string ConnectionString) : base(ConnectionString)
+        {
+
+        }
+
         public virtual DbSet<Cargo> Cargo { get; set; }
         public virtual DbSet<CargoType> CargoType { get; set; }
         public virtual DbSet<City> City { get; set; }
@@ -23,6 +28,7 @@ namespace CSADB.Model
         public virtual DbSet<PartnerCompany> PartnerCompany { get; set; }
         public virtual DbSet<Postamat> Postamat { get; set; }
         public virtual DbSet<Storage> Storage { get; set; }
+        public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Tariff> Tariff { get; set; }
         public virtual DbSet<Users> Users { get; set; }
 
@@ -49,6 +55,24 @@ namespace CSADB.Model
                 .HasForeignKey(e => e.City)
                 .WillCascadeOnDelete(false);
 
+            modelBuilder.Entity<City>()
+                .HasMany(e => e.Storage)
+                .WithRequired(e => e.City1)
+                .HasForeignKey(e => e.City)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<City>()
+                .HasMany(e => e.Delivery)
+                .WithRequired(e => e.City)
+                .HasForeignKey(e => e.DeliveryCity)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<City>()
+                .HasMany(e => e.Postamat)
+                .WithRequired(e => e.City1)
+                .HasForeignKey(e => e.City)
+                .WillCascadeOnDelete(false);
+
             modelBuilder.Entity<Client>()
                 .HasMany(e => e.Cargo)
                 .WithRequired(e => e.Client)
@@ -66,6 +90,10 @@ namespace CSADB.Model
                 .WithRequired(e => e.Courier1)
                 .HasForeignKey(e => e.Courier)
                 .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Delivery>()
+                .Property(e => e.DeliveryAddress)
+                .IsUnicode(false);
 
             modelBuilder.Entity<Delivery>()
                 .Property(e => e.Price)

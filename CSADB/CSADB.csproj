@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dadata, Version=21.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dadata.21.12.0\lib\netstandard2.0\Dadata.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -44,6 +47,12 @@
     </Reference>
     <Reference Include="MaterialSkin, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialSkin.2.2.3.1\lib\net48\MaterialSkin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.ConnectionUI.Dialog">
+      <HintPath>..\..\..\..\..\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Microsoft.Data.ConnectionUI.Dialog.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -70,11 +79,12 @@
     <Compile Include="Model\Courier.cs" />
     <Compile Include="Model\CourierDelivery.cs" />
     <Compile Include="Model\Delivery.cs" />
-    <Compile Include="Model\DeliveryServiceEDM.cs" />
     <Compile Include="Model\DeliveryStatus.cs" />
+    <Compile Include="Model\DeliveryServiceEDM.cs" />
     <Compile Include="Model\PartnerCompany.cs" />
     <Compile Include="Model\Postamat.cs" />
     <Compile Include="Model\Storage.cs" />
+    <Compile Include="Model\sysdiagrams.cs" />
     <Compile Include="Model\Tariff.cs" />
     <Compile Include="Model\Users.cs" />
     <Compile Include="View\AuthForm.cs">
@@ -85,6 +95,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\CheckoutDeliveryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\CheckoutDeliveryForm.Designer.cs">
+      <DependentUpon>CheckoutDeliveryForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\ClientForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,9 +142,16 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="View\CheckoutDeliveryForm.resx">
+      <DependentUpon>CheckoutDeliveryForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\CourierForm.resx">
+      <DependentUpon>CourierForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\DeliveryDetailsForm.resx">
       <DependentUpon>DeliveryDetailsForm.cs</DependentUpon>
@@ -150,7 +173,21 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\updateIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\update.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\update1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PLUS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\settings.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

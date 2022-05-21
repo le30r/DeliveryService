@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -16,11 +17,14 @@ namespace CSADB.View
         Controller controller = Controller.GetInstance();
 
         bool pwdCorrect = false;
-        public RegisterForm()
+        Form parent;
+        public RegisterForm(Form parent)
         {
             InitializeComponent();
            birthdayPicker.MinDate = DateTime.Now.AddYears(-100);
           birthdayPicker.MaxDate = DateTime.Now.AddYears(-16);
+            cityCombobox.SelectedIndex = 0;
+            this.parent = parent;
         }
 
       
@@ -46,12 +50,22 @@ namespace CSADB.View
 
         private void registerButton_Click(object sender, EventArgs e)
         {
-            if  (true)
+            bool isFiled = loginTextBox.Text != "" && passwordTextBox.Text == repeatTextBox.Text
+                && nameTextBox.Text != ""
+                && lastNameTextBox.Text != ""
+                && phoneTextBox.Text.Length == 17; 
+            if  (isFiled) 
             {
                 bool isCourier = CourierSwitch.Checked;
+
                 controller.Register(lastNameTextBox.Text, nameTextBox.Text, middleNameTextBox.Text,
                   phoneTextBox.Text, emailTextBox.Text, loginTextBox.Text, passwordTextBox.Text, isCourier, 
                    cityCombobox.SelectedIndex, birthdayPicker.Value, carCheckbox.Checked);
+
+                MaterialMessageBox.Show("Регистрация выполнена успешно");
+                parent.Focus();
+                this.Close();
+                
             } else
             {
                 MaterialMessageBox.Show("Форма заполнена неверно");
@@ -111,23 +125,14 @@ namespace CSADB.View
 
         private void middleNameTextBox_Validating(object sender, CancelEventArgs e)
         {
-            string input = nameTextBox.Text.Trim();
-            if (String.IsNullOrEmpty(input))
-            {
-                errorProvider.SetError(middleNameTextBox, "Ошибка!");
-                e.Cancel = true;
-            }
-            else
-            {
-                errorProvider.SetError(middleNameTextBox, String.Empty);
-                e.Cancel = false;
-            }
+            
         }
 
         private void phoneTextBox_Validating(object sender, CancelEventArgs e)
         {
-            string input = nameTextBox.Text.Trim();
-            if (String.IsNullOrEmpty(input))
+            string input = phoneTextBox.Text.Trim();
+            long value = Convert.ToInt64(Regex.Replace(input, @"[^\d]+", ""));
+            if (value < 70000000000 || value > 79999999999)
             {
                 errorProvider.SetError(phoneTextBox, "Ошибка!");
                 e.Cancel = true;
@@ -141,7 +146,7 @@ namespace CSADB.View
 
         private void emailTextBox_Validating(object sender, CancelEventArgs e)
         {
-            string input = nameTextBox.Text.Trim();
+            /*string input = emailTextBox.Text.Trim();
             if (String.IsNullOrEmpty(input))
             {
                 errorProvider.SetError(emailTextBox, "Ошибка!");
@@ -151,7 +156,7 @@ namespace CSADB.View
             {
                 errorProvider.SetError(emailTextBox, String.Empty);
                 e.Cancel = false;
-            }
+            }*/
         }
 
         private void loginTextBox_Validating(object sender, CancelEventArgs e)
@@ -166,6 +171,11 @@ namespace CSADB.View
                 errorProvider.SetError(loginTextBox, String.Empty);
                 e.Cancel = false;
             }
+        }
+
+        private void loginTextBox_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

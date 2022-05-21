@@ -5,20 +5,26 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using CSADB.Model;
+using Dadata;
 using MaterialSkin.Controls;
 
 namespace CSADB
 {
     internal class Controller
     {
-        DeliveryServiceEDM context = new DeliveryServiceEDM();
+        public readonly DeliveryServiceEDM context;
         static Controller instance = null;
-        
-        private Controller()
-        {
+        public List<Client> clients;
+        public List<City> cities;
+        public List<CargoType> types;
+        public static string token = "582d94bf3d0a3b913e44335807fc2c653b2087d3";
+       
 
-        }
+        public int lastCargoIndex;
+        public int lastDeliveryIndex;
+        internal string ConnectionString = "data source=DESKTOP-8ER83ML\\SQLEXPRESS;initial catalog=DeliveryService;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework";
 
         public static Controller GetInstance()
         {
@@ -28,8 +34,53 @@ namespace CSADB
             }
             return instance;
         }
-        
-        
+        private Controller()
+        {
+            context = new DeliveryServiceEDM(ConnectionString);
+            GetClients();
+            GetCities();
+            GetCargoTypes();
+            lastCargoIndex = context.Cargo.OrderByDescending(c => c.CargoID).FirstOrDefault() != null ? 
+                                        context.Cargo.OrderByDescending(c => c.CargoID).FirstOrDefault().CargoID + 1 : 0;
+            lastDeliveryIndex = context.Delivery.OrderByDescending(d => d.DeliveryID).FirstOrDefault() != null ?  
+                context.Delivery.OrderByDescending(d => d.DeliveryID).FirstOrDefault().DeliveryID + 1 : 0;
+        }
+
+        internal List<Delivery> GetFreeDeliveriesyByCity(int city)
+        {
+            return context.Delivery.Where(c => (c.DeliveryCity == city) && (c.DeliveryStatus < 4)).ToList();
+        }
+
+        internal void AddCourierDelivery(Courier courier, Delivery delivery)
+        {
+            var courierDelivery = new CourierDelivery();
+            courierDelivery.Courier1 = courier;
+            courierDelivery.Delivery1 = delivery;
+            context.CourierDelivery.Add(courierDelivery);
+            Commit();
+        }
+        internal Courier GetCourierById(int id)
+        {
+            return context.Courier.Where(c=>c.CourierID == id).FirstOrDefault();
+        }
+
+        private void GetCargoTypes()
+        {
+            types = context.CargoType.ToList();
+        }
+
+       
+
+        internal List<String> GetPartnerCompanies()
+        {
+           return context.PartnerCompany.Select(x=>x.CompanyName).ToList();
+        }
+
+        internal void DestroyContext()
+        {
+            context.Dispose();
+        }
+
         internal Users Auth(string login, string password)
         {           
 
@@ -52,14 +103,50 @@ namespace CSADB
             return null;
         }
 
+        internal List<Storage> GetStorages()
+        {
+            return context.Storage.ToList();
+        }
+
+        internal List<string> GetTariffs()
+        {
+            return context.Tariff.Select(x=>x.TariffName).ToList();
+        }
+
+        internal void GetCities()
+        {
+            cities = context.City.ToList();
+        }
+        
+
+        internal string GetPostamatAddress(int id)
+        {
+            return context.Postamat.Where(x => x.PostamatID == id).FirstOrDefault().PostamatAddress;
+        }
+
         internal int GetCourier(Delivery delivery)
         {
             return context.CourierDelivery.Where(x=>x.Delivery == delivery.DeliveryID).FirstOrDefault().Courier;
         }
 
+        internal List<string> GetPostamats()
+        {
+           return context.Postamat.OrderBy(x=> x.PostamatID).Select(x=>x.PostamatAddress).ToList();
+        }
+
+        internal string GetCargoTypeById(int cargoType)
+        {
+            return context.CargoType.Where(c=>c.TypeID == cargoType).FirstOrDefault().TypeName;
+        }
+
         internal Tariff GetTariff(int value)
         {
             return context.Tariff.Where(x=>x.TariffID == value).FirstOrDefault();
+        }
+
+        internal Tariff GetTariffByName(string name)
+        {
+            return context.Tariff.Where(x=>x.TariffName == name).FirstOrDefault();
         }
 
         internal DeliveryStatus GetStatus(int i)
@@ -77,7 +164,33 @@ namespace CSADB
             return context.Delivery.Where(x=>x.Client.ClientID == client.ClientID).ToList();
         }
 
-        internal void Register(string lastName, string name, string middleName,
+        internal List<Cargo> GetCargos(Delivery delivery)
+        {
+            var id = delivery.DeliveryID;
+            return context.Cargo.Where(x=>x.Delivery.FirstOrDefault().DeliveryID==id).ToList();
+        }
+        internal List<Cargo> GetCargos(int clientId)
+        {
+            return context.Cargo.Where(x => x.Shipper == clientId).ToList();
+        }
+
+        internal Cargo GetCargoById(int id)
+        {
+            return context.Cargo.Where(x=>x.CargoID == id).FirstOrDefault();
+        }
+        internal void GetClients()
+        {
+           clients = context.Client.ToList();
+        }
+
+        internal Delivery GetActiveDelivery(Courier courier)
+        {
+
+            var courDel = context.CourierDelivery.Where(x => x.Courier == courier.CourierID).Where(x => x.Delivery1.DeliveryStatus != 5).FirstOrDefault();
+            return courDel != null ? courDel.Delivery1 : null;
+        }
+
+        internal void Register(string lastName, string name, string middleName, 
             string phone, string email, string login, string password, bool isCourier, int city, DateTime birthday, bool car)
         {
             Users user = new Users();
@@ -85,7 +198,7 @@ namespace CSADB
             Client client = new Client();
             user.UserLogin = login;
             user.PasswordHash = GetHash(login, password);
-            user.ID = context.Users.OrderByDescending(x => x.ID).Count() + 1;
+            user.ID = context.Users.OrderByDescending(x => x.ID).FirstOrDefault().ID + 1;
             long phNum = Convert.ToInt64(Regex.Replace(phone, @"[^\d]+", ""));
             
 
@@ -122,6 +235,10 @@ namespace CSADB
             context.SaveChanges();
         }
 
+        internal void Commit()
+        {
+            context.SaveChanges();
+        }
 
         public Client GetClientByID(int ID)
         {
@@ -135,13 +252,14 @@ namespace CSADB
         string GetHash(string login, string password)
         {
             string loginString = "C1A3S3D7B" + login + password;
-
-            return HashPassword(loginString);
+            var hash = HashPassword(loginString);
+            Console.WriteLine(hash);
+            return hash;
         }
 
         bool Verify(string login, string password, string hashedPass)
         {
-
+            Console.WriteLine(GetHash(login, password));
             return VerifyHashedPassword(hashedPass, "C1A3S3D7B" + login + password);
         }
 

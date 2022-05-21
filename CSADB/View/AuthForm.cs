@@ -30,13 +30,13 @@ namespace CSADB.View
             var materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
-            materialSkinManager.ColorScheme = new ColorScheme(Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.Pink400, TextShade.WHITE);
+            materialSkinManager.ColorScheme = new ColorScheme(Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.Blue700, TextShade.WHITE);
         }
 
 
         private void registerButton_Click(object sender, EventArgs e)
         {
-            var regForm = new RegisterForm();
+            var regForm = new RegisterForm(this);
             regForm.Show(this);
         }
 
@@ -56,22 +56,32 @@ namespace CSADB.View
                 switch (user.AccessLevel.Value)
                 {
                     case 0:
-                        form = new ClientForm(user);
+                        form = new ClientForm(user, this);
+                        this.Hide();
                         form.Show(this);
+                        form.Focus();
                         break;
                     case 1:
-                        form = new CourierForm();
+                        form = new CourierForm(user, this);
+                        this.Hide();
                         form.Show(this);
+                        form.Focus();
                         break;
                     case 2:
-                        form = new ManagerForm();
-                        form.Show(this);
+                        MaterialMessageBox.Show("Доступ менеджера временно ограничен"); //TODO: Реализация окна менеджера
                         break;
                     default:
                         break;
                 }
             }
             
+        }
+
+       
+
+        private void AuthForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            controller.DestroyContext();
         }
     }
 }

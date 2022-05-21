@@ -13,6 +13,9 @@ namespace CSADB.Model
         public City()
         {
             Courier = new HashSet<Courier>();
+            Storage = new HashSet<Storage>();
+            Delivery = new HashSet<Delivery>();
+            Postamat = new HashSet<Postamat>();
         }
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -24,5 +27,14 @@ namespace CSADB.Model
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Courier> Courier { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Storage> Storage { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Delivery> Delivery { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Postamat> Postamat { get; set; }
     }
 }

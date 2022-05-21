@@ -21,6 +21,11 @@ namespace CSADB.Model
 
         public int Receiver { get; set; }
 
+        public int DeliveryCity { get; set; }
+
+        [StringLength(50)]
+        public string DeliveryAddress { get; set; }
+
         public int? Postamat { get; set; }
 
         [Column(TypeName = "date")]
@@ -34,6 +39,8 @@ namespace CSADB.Model
 
         [Column(TypeName = "money")]
         public decimal? Price { get; set; }
+
+        public virtual City City { get; set; }
 
         public virtual Client Client { get; set; }
 

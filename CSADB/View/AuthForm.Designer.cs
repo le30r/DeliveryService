@@ -174,6 +174,7 @@
             this.Name = "AuthForm";
             this.Sizable = false;
             this.Text = "Курьерская служба";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AuthForm_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
