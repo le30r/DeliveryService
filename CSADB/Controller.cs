@@ -36,7 +36,7 @@ namespace CSADB
         }
         private Controller()
         {
-            context = new DeliveryServiceEDM(ConnectionString);
+            context = new DeliveryServiceEDM();
             GetClients();
             GetCities();
             GetCargoTypes();

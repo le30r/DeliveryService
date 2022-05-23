@@ -269,7 +269,8 @@ namespace CSADB.View
         private async void sendAddress_LeaveAsync(object sender, EventArgs e)
         {
            
-
+            //Подсказка адресов в тестовом режиме 
+            
             if (sendAddress.Text != "") {
                 var api = new SuggestClientAsync(Controller.token);
                 var text = await api.SuggestAddress(sendAddress.Text);
