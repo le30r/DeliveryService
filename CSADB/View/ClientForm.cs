@@ -73,7 +73,7 @@ namespace CSADB.View
         {
             if (cargoList.SelectedItems.Count > 0)
             {
-                var cargoId = cargoList.SelectedItems[0].SubItems[0].Text;
+                var cargoId = cargoList.SelectedItems[0].SubItems[0].Text;  
                 var cargo = controller.GetCargoById(Convert.ToInt32(cargoId));
                 if (cargo.Delivery.Count <= 0)
                 {

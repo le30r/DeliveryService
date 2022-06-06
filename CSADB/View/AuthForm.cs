@@ -68,7 +68,10 @@ namespace CSADB.View
                         form.Focus();
                         break;
                     case 2:
-                        MaterialMessageBox.Show("Доступ менеджера временно ограничен"); //TODO: Реализация окна менеджера
+                        form = new ManagerForm(loginTextBox.Text, this);
+                        this.Hide();
+                        form.Show(this);
+                        form.Focus();
                         break;
                     default:
                         break;
