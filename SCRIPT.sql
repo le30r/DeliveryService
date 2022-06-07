@@ -453,5 +453,109 @@ GO
 select * from Courier
 
 
+GO
+
+-- Добавление пользователя
+CREATE PROC AddUser (@login nvarchar(20), @password varchar(20), @level int) 
+AS
+DECLARE @id int
+SELECT @id = MAX(ID) + 1
+FROM Users
+DECLARE @authdata nvarchar(40)
+SET @authdata = @login + @password
+INSERT INTO Users
+VALUES (@id, @login, HASHBYTES('SHA2_256', @authdata), @level) 
+RETURN @id
+GO
+
+--Проверка авторизации
+CREATE PROC CheckAuthData (@login nvarchar(20), @password varchar(20))
+AS
+DECLARE @authdata nvarchar(40)
+SET @authdata = @login + @password
+IF HASHBYTES('SHA2_256', @authdata) = (SELECT PasswordHash
+										FROM Users
+										WHERE @login = UserLogin)
+return (SELECT ID FROM Users WHERE @login = UserLogin)
+ELSE 
+return -1
+GO
+
+-- Добавление курьера
+CREATE PROC AddCourier (@login nvarchar(20), @password varchar(20),
+						@FirstName nvarchar(25), @MiddleName nvarchar(25), @LastName nvarchar(25), 
+						@birthday date, @phone phoneNumber, @city int, @district nvarchar(65), @car bit)
+AS
+DECLARE @ID int
+EXEC @ID = AddUser @login, @password, 1
+INSERT INTO Courier
+VALUES (@ID, @FirstName, @MiddleName, @LastName, @birthday, @phone, NULL, @city, @district, @car)
+RETURN @ID
+GO
+
+--Удаление курьера
+CREATE PROC RemoveCourier (@login nvarchar(20))
+AS
+DECLARE @id int
+SELECT @id = ID
+FROM Users
+WHERE @login = UserLogin
+IF NOT EXISTS (SELECT * FROM CourierDelivery WHERE Courier = @id) 
+	BEGIN
+	DELETE FROM Courier
+	WHERE CourierID = @id
+
+	DELETE FROM Users 
+	WHERE ID = @id
+	END
+ELSE
+PRINT 'Невозможно удалить курьера, имеющего доставки'
+IF @@ROWCOUNT = 0 PRINT 'Курьер с данным логином не найден!'
+GO
+
+--Добавление клиента
+CREATE PROC AddClient (@login nvarchar(20), @password varchar(20),
+						@FirstName nvarchar(25), @MiddleName nvarchar(25), @LastName nvarchar(25), 
+						 @phone phoneNumber, @email email)
+AS
+DECLARE @ID int
+EXEC @ID = AddUser @login, @password, 0
+INSERT INTO Client
+VALUES (@ID, @FirstName, @MiddleName, @LastName, NULL, NULL, @phone, @email)
+RETURN @ID
+GO
+
+--Удаление клиента
+CREATE PROC RemoveClient (@login nvarchar(20))
+AS
+DECLARE @id int
+SELECT @id = ID
+FROM Users
+WHERE @login = UserLogin
+IF NOT EXISTS (SELECT * FROM Delivery WHERE Receiver = @id)
+	BEGIN
+	DELETE FROM Client
+	WHERE ClientID = @id
+	DELETE FROM Users 
+	WHERE ID = @id
+	END
+ELSE
+	PRINT 'Невозможно удалить клиента, имеющего доставки'
+IF @@ROWCOUNT = 0 PRINT 'Клиент с данным логином не найден!'
+GO
+
+
+--Добавление груза
+CREATE PROC AddCargo (@CargoType int, @CargoName nvarchar(50), @Storage int, @Shipper int, @CargoWeight real, @H real, @W real, @D real)
+AS
+DECLARE @id int
+SELECT @id = MAX (CargoID)
+FROM Cargo
+INSERT INTO Cargo
+VALUES (@id, @CargoType, @CargoName, @Storage, @Shipper, SYSDATETIME(), 
+
+
+SELECT * FROM Cargo
+
 
 
