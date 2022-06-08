@@ -393,14 +393,7 @@ VALUES (0, 0)
 GO
 
 -- получить все доставки в конкретном городе
-CREATE PROCEDURE GetDeliveriesByCity @name varchar(25)
-AS
-SELECT * 
-FROM Delivery JOIN City ON Delivery.DeliveryCity = City.CityID
-WHERE CityName = @name
 
-exec GetDeliveriesByCity 'Рязань'
-Go
 
 
 --Запрет на удаление и изменение записей во вспомогательных таблицах
@@ -572,8 +565,18 @@ INSERT INTO Cargo
 VALUES (@id, @CargoType, @CargoName, @Storage, @Shipper, GETDATE(), CURRENT_TIMESTAMP, @CargoWeight, @H, @W, @D)
 GO
 
+CREATE PROCEDURE GetDeliveriesByCity @name varchar(25)
+AS
+SELECT * 
+FROM Delivery JOIN City ON Delivery.DeliveryCity = City.CityID
+WHERE CityName = @name
+GO
 
---Триггер на добавление грузов в доставку
+exec GetDeliveriesByCity 'Рязань'
+Go
+
+
+--Триггер запрещающий добавление в доставку грузов, не соответствующих тарифу
 CREATE TRIGGER TCargoTypes
 ON CargoDelivery
 AFTER INSERT, UPDATE
@@ -606,12 +609,8 @@ CLOSE cursor_deliveries
 DEALLOCATE cursor_deliveries
 GO
 
-select * from Cargo
-SELECT * FROM Client
-
-GO
-
-CREATE TRIGGER TCargoDelivery
+--Триггер, запрещающий добавление грузов для пешего курьера массой больше 15 кг
+ALTER TRIGGER TCargoWeight
 ON CargoDelivery
 AFTER INSERT, UPDATE
 AS
@@ -621,42 +620,66 @@ DECLARE @delivery_id int
 FETCH NEXT FROM cursor_deliveries INTO @delivery_id
 WHILE @@FETCH_STATUS = 0
 	BEGIN
-	DECLARE cursor_cargo CURSOR FOR SELECT Cargo FROM inserted WHERE Delivery = @delivery_id
-	OPEN cursor_cargo
-	DECLARE @cargo_id int
-	FETCH NEXT FROM cursor_cargo INTO @cargo_id
-	DECLARE @isToxic bit, @isFragile bit
-	WHILE @@FETCH_STATUS = 0
-		BEGIN
-		DECLARE @isCurrentToxic bit, @isCurrentFragile bit
-		select @isCurrentToxic = isnull((SELECT CargoType
-										FROM Cargo
-										WHERE CargoID = @cargo_id AND CargoType = 6), 0)
-		SET @isToxic |= @isCurrentToxic
-		select @isCurrentFragile = isnull((SELECT CargoType
-										FROM Cargo
-										WHERE CargoID = @cargo_id AND CargoType = 7), 0)
-		SET @isFragile |= @isCurrentFragile
-		END	
-	
-	END
-	
+	DECLARE @DeliveryWeight real
+	SET @DeliveryWeight  = 0
+	DECLARE @courier_id int, @cargo_id int
+	SELECT @courier_id = Courier FROM CourierDelivery WHERE Delivery = @delivery_id
+		IF EXISTS (SELECT * FROM Courier WHERE CourierID = @courier_id AND Car = 0)
+			BEGIN
+			DECLARE cursor_cargo CURSOR LOCAL FOR SELECT Cargo FROM inserted WHERE Delivery = @delivery_id 
+			OPEN cursor_cargo
+			FETCH FROM cursor_cargo INTO @cargo_id 
+			WHILE @@FETCH_STATUS = 0
+				BEGIN
+					SET @DeliveryWeight += (SELECT CargoWeight
+											FROM Cargo
+											WHERE CargoID = @cargo_id)
+					IF (@DeliveryWeight > 15000) 
+						BEGIN
+						DELETE FROM CargoDelivery
+						WHERE Cargo = @cargo_id AND Delivery = @delivery_id
+						SET @DeliveryWeight -= (SELECT CargoWeight
+											FROM Cargo
+											WHERE CargoID = @cargo_id)
+						PRINT 'Масса доставки больше 15 кг запрещена для пешего курьера'
+						END
+				FETCH FROM cursor_cargo INTO @cargo_id
+				END
+			CLOSE cursor_cargo
+			DEALLOCATE cursor_cargo
+			FETCH NEXT FROM cursor_deliveries INTO @delivery_id
+			END
+	END	
+CLOSE cursor_deliveries
+DEALLOCATE cursor_deliveries
+GO
 
-	SELECT * FROM
-	SELECT * FROM 
 
 
-	FETCH NEXT FROM cursor_deliveries INTO @delivery_id 
-END
-CLOSE cursor_cargo 
+
+INSERT INTO CargoDelivery 
+VALUES (13, 1)
+DELETE FROM CargoDelivery
+WHERE Cargo = 13
+
+select * from Tariff
+
+SELECT * FROM Cargo
+
+select * from CourierDelivery
+SELECT * FROM Client
+
+exec AddCargo 0, 'Пуд пуха', NULL, 1, 16000, 15, 15, 15 
 
 
 select * from Delivery
-select * from Tariff
 
-SELECT * FROM CargoType
+update Courier 
+SET Car = 0
+WHERE CourierID = 9
+INSERT INTO CourierDelivery
+VALUES (9, 1, GETDATE(), CURRENT_TIMESTAMP)
 
-
-
-
+SELECT * FROM CargoDelivery
+SELECT * FROM Delivery
 
