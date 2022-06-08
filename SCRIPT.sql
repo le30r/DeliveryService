@@ -69,6 +69,11 @@ AS @x BETWEEN 70000000000 AND 79999999999
 GO
 sp_bindrule 'number', 'phoneNumber'
 GO
+
+CREATE RULE RealValues 
+AS @x > 0
+GO
+
 -- создание таблиц базы данных
 
 CREATE TABLE PartnerCompany (
@@ -224,6 +229,18 @@ sp_bindefault 'CurrentDate', 'Cargo.ArrivalDate'
 GO
 
 sp_bindefault 'CurrentTime', 'Cargo.ArrivalTime'
+GO
+
+sp_bindrule 'RealValues', 'Cargo.CargoWeight'
+GO
+
+sp_bindrule 'RealValues', 'Cargo.Height'
+GO
+
+sp_bindrule 'RealValues', 'Cargo.Width'
+GO
+
+sp_bindrule 'RealValues', 'Cargo.Depth'
 GO
 
 
@@ -549,13 +566,97 @@ GO
 CREATE PROC AddCargo (@CargoType int, @CargoName nvarchar(50), @Storage int, @Shipper int, @CargoWeight real, @H real, @W real, @D real)
 AS
 DECLARE @id int
-SELECT @id = MAX (CargoID)
+SELECT @id = MAX (CargoID) +1
 FROM Cargo
 INSERT INTO Cargo
-VALUES (@id, @CargoType, @CargoName, @Storage, @Shipper, SYSDATETIME(), 
+VALUES (@id, @CargoType, @CargoName, @Storage, @Shipper, GETDATE(), CURRENT_TIMESTAMP, @CargoWeight, @H, @W, @D)
+GO
 
 
-SELECT * FROM Cargo
+--Триггер на добавление грузов в доставку
+CREATE TRIGGER TCargoTypes
+ON CargoDelivery
+AFTER INSERT, UPDATE
+AS
+DECLARE cursor_deliveries CURSOR FOR SELECT DISTINCT Delivery FROM inserted
+OPEN cursor_deliveries
+DECLARE @delivery_id int
+FETCH NEXT FROM cursor_deliveries INTO @delivery_id
+WHILE @@FETCH_STATUS = 0
+	BEGIN
+	DECLARE @tariff int
+	SELECT @tariff = Tariff
+	FROM Delivery
+	WHERE DeliveryID = @delivery_id
+	IF EXISTS (SELECT * FROM Tariff WHERE TariffID = @tariff AND Toxic != 1)
+		DELETE FROM CargoDelivery 
+		WHERE Delivery = @delivery_id AND Cargo IN (SELECT CargoID
+						FROM Cargo
+						WHERE CargoType = 6)
+	IF @@ROWCOUNT != 0 PRINT 'Тип грузов не соответствует тарифу доставки'
+	IF EXISTS (SELECT * FROM Tariff WHERE TariffID = @tariff AND Fragile != 1)
+		DELETE FROM CargoDelivery 
+		WHERE Delivery = @delivery_id AND Cargo IN (SELECT CargoID
+												FROM Cargo
+												WHERE CargoType = 7)
+	IF @@ROWCOUNT != 0 PRINT 'Тип грузов не соответствует тарифу доставки'
+	FETCH NEXT FROM cursor_deliveries INTO @delivery_id
+	END
+CLOSE cursor_deliveries
+DEALLOCATE cursor_deliveries
+GO
+
+select * from Cargo
+SELECT * FROM Client
+
+GO
+
+CREATE TRIGGER TCargoDelivery
+ON CargoDelivery
+AFTER INSERT, UPDATE
+AS
+DECLARE cursor_deliveries CURSOR FOR SELECT DISTINCT Delivery FROM inserted
+OPEN cursor_deliveries
+DECLARE @delivery_id int
+FETCH NEXT FROM cursor_deliveries INTO @delivery_id
+WHILE @@FETCH_STATUS = 0
+	BEGIN
+	DECLARE cursor_cargo CURSOR FOR SELECT Cargo FROM inserted WHERE Delivery = @delivery_id
+	OPEN cursor_cargo
+	DECLARE @cargo_id int
+	FETCH NEXT FROM cursor_cargo INTO @cargo_id
+	DECLARE @isToxic bit, @isFragile bit
+	WHILE @@FETCH_STATUS = 0
+		BEGIN
+		DECLARE @isCurrentToxic bit, @isCurrentFragile bit
+		select @isCurrentToxic = isnull((SELECT CargoType
+										FROM Cargo
+										WHERE CargoID = @cargo_id AND CargoType = 6), 0)
+		SET @isToxic |= @isCurrentToxic
+		select @isCurrentFragile = isnull((SELECT CargoType
+										FROM Cargo
+										WHERE CargoID = @cargo_id AND CargoType = 7), 0)
+		SET @isFragile |= @isCurrentFragile
+		END	
+	
+	END
+	
+
+	SELECT * FROM
+	SELECT * FROM 
+
+
+	FETCH NEXT FROM cursor_deliveries INTO @delivery_id 
+END
+CLOSE cursor_cargo 
+
+
+select * from Delivery
+select * from Tariff
+
+SELECT * FROM CargoType
+
+
 
 
 

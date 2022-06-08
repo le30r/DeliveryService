@@ -267,6 +267,7 @@
             this.parametersExpansion.ValidationButtonText = "Сохранить";
             this.parametersExpansion.SaveClick += new System.EventHandler(this.parametersExpansion_SaveClick);
             this.parametersExpansion.PanelExpand += new System.EventHandler(this.parametersExpansion_PanelExpand);
+            this.parametersExpansion.Paint += new System.Windows.Forms.PaintEventHandler(this.parametersExpansion_Paint);
             // 
             // materialLabel4
             // 

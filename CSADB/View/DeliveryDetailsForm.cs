@@ -154,5 +154,10 @@ namespace CSADB.View
         {
             parent.Focus();
         }
+
+        private void parametersExpansion_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
