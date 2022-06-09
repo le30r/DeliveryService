@@ -311,89 +311,6 @@ CREATE TABLE CargoDelivery (
 GO
 
 
-INSERT INTO City 
-VALUES (0, 'Рязань'),
-		(1, 'Рыбное'),
-		(2, 'Москва')
-
-INSERT INTO Tariff 
-VALUES (0, 'Обычный', 350, 0, 0),
-		(1, 'Быстрый', 450, 0, 0), 
-		(2, 'Хрупкий', 600, 1, 0),
-		(3, 'Токсичный', 1200, 0, 1),
-		(4, 'Все включено', 2000, 1, 1)
-GO
-
-INSERT INTO DeliveryStatus 
-VALUES (0, 'Передан в обработку'), 
-		(1, 'В обработке'),
-		(2, 'В пути'), 
-		(3, 'На складе'), 
-		(4, 'Передан курьеру'),
-		(5, 'Доставлен')
-GO	
-
-INSERT INTO Storage 
-VALUES (0, 'Южный-1', 300, 0, 'Михайловское шоссе, 15'),
-		(1, 'Северный-1', 150, 0, 'ул. Бирюзова, 16'),
-		(2, 'Столичный-1', 1300, 2,'Новорязанское шоссе, 34')
-GO
-
-INSERT INTO Postamat
-VALUES (0, 0, 'ул. Мервинская, 30. Магазин "Пятерочка', 20),
-		(1, 0, 'ул. Октябрьский городок, 35', 20)
-GO
-
-INSERT INTO CargoType
-VALUES (0, 'Письмо'),
-		(1, 'Бандероль'),
-		(2, 'Посылка'), 
-		(3, 'Коробка'),
-		(4, 'Большая коробка'),
-		(5, 'Негабаритный'), 
-		(6, 'Токсичный'),
-		(7, 'Хрупкий')
-GO
-
-INSERT INTO PartnerCompany
-VALUES (0, 'Fragile Express', '79995553333', 'Рязань, Московское шоссе, 5а'),
-		(1, 'Bridges', '79995553334', 'Рязань, ул. Зубкова, 17')
-GO
-
-
-
-
-INSERT INTO Users 
-VALUES (0, 'admin', 'APPySUTbEqrObZUVTu8EyqumPa+uKMaTq8h+DNULhcmjEOOVSeiccUY/g6TyOnhrFg==', 2),
-		(1, 'user',	'AH66d90aLNEpG7xhMDo7K99XCUPadAnFMk55NxzYMSt3xb0MuAaDLc5Cxfefp21kfA==',	0),
-		(2, 'user2', 'AGsbfyabfPCBn/vYe+6lfQSv4+cNXyBNvxKIW+m149I4AISZU1Ky65v4ye+4SjoDzg==', 0),
-		(3, 'samporter', 'ABPweTg4oVPw44YRFPBdj95BUU+vb4/yPPV542RbSt8ziO2LqphDNuhsoar3KdN7sw==', 1)
-GO
-
-INSERT INTO Client 
-	VALUES (1, 'Петр', 'Петрович', 'Петров', NULL, NULL, '79999999999', 'test@delivery.ru'),
-			(2, 'Иван', 'Иванович', 'Иванов', NULL, NULL, '79009019091', '')
-GO
-
-INSERT INTO Courier
-VALUES (3, 'Сэм', 'Портер', 'Бриджес', '1982-07-16', '79999999999', NULL, 0, '', 1)
-GO 
-
-
-INSERT INTO Delivery 
-VALUES (0, '2', 0, NULL, NULL, NULL, NULL, 0, 0, 350)
-GO
-
-INSERT INTO Cargo 
-	VALUES (0, 0, 'Письмо', 1, 1, '10-05-2022', '15:00', 100, 1, 15, 7)
-GO
-
-INSERT INTO CargoDelivery 
-VALUES (0, 0)
-GO
-
--- получить все доставки в конкретном городе
-
 
 
 --Запрет на удаление и изменение записей во вспомогательных таблицах
@@ -407,8 +324,6 @@ PRINT 'Удаление/изменение записей во вспомогательных таблицах запрещено'
 END
 GO
 
-DELETE FROM City WHERE City.CityID = 1
-GO
 
 CREATE TRIGGER TStorageRestrict
 ON Storage
@@ -460,10 +375,6 @@ PRINT 'Удаление/изменение записей во вспомогательных таблицах запрещено'
 END
 GO
 
-select * from Courier
-
-
-GO
 
 -- Добавление пользователя
 CREATE PROC AddUser (@login nvarchar(20), @password varchar(20), @level int) 
@@ -565,6 +476,32 @@ INSERT INTO Cargo
 VALUES (@id, @CargoType, @CargoName, @Storage, @Shipper, GETDATE(), CURRENT_TIMESTAMP, @CargoWeight, @H, @W, @D)
 GO
 
+--обновление  груза
+CREATE PROC UpdateCargo (@CargoID int, @CargoType int, @CargoName nvarchar(50), @Storage int, @Shipper int, @CargoWeight real, @H real, @W real, @D real)
+AS
+UPDATE Cargo
+SET CargoType = ISNULL(@CargoType, (SELECT CargoType FROM Cargo WHERE CargoID = @CargoID)),
+CargoName = ISNULL(@CargoName, (SELECT CargoName FROM Cargo WHERE CargoID = @CargoID)),
+Storage = ISNULL(@Storage, (SELECT Storage FROM Cargo WHERE CargoID = @CargoID)),
+Shipper = ISNULL(@Shipper, (SELECT Shipper FROM Cargo WHERE CargoID = @CargoID)),
+CargoWeight = ISNULL(@CargoWeight, (SELECT CargoWeight FROM Cargo WHERE CargoID = @CargoID)),
+Height = ISNULL(@H, (SELECT Height FROM Cargo WHERE CargoID = @CargoID)),
+Width = ISNULL(@W, (SELECT Width FROM Cargo WHERE CargoID = @CargoID)),
+Depth = ISNULL(@D, (SELECT Depth FROM Cargo WHERE CargoID = @CargoID))
+WHERE CargoID = @CargoID
+GO
+
+--Удаление груза
+CREATE PROC DeleteCargo (@CargoID int)
+AS 
+DELETE FROM CargoDelivery 
+WHERE @CargoID = Cargo
+DELETE FROM Cargo 
+WHERE CargoID = @CargoID
+GO
+
+
+--Получить все доставки в конкретном городе
 CREATE PROCEDURE GetDeliveriesByCity @name varchar(25)
 AS
 SELECT * 
@@ -572,8 +509,7 @@ FROM Delivery JOIN City ON Delivery.DeliveryCity = City.CityID
 WHERE CityName = @name
 GO
 
-exec GetDeliveriesByCity 'Рязань'
-Go
+
 
 
 --Триггер запрещающий добавление в доставку грузов, не соответствующих тарифу
@@ -610,76 +546,268 @@ DEALLOCATE cursor_deliveries
 GO
 
 --Триггер, запрещающий добавление грузов для пешего курьера массой больше 15 кг
-ALTER TRIGGER TCargoWeight
-ON CargoDelivery
-AFTER INSERT, UPDATE
+ALTER TRIGGER TCargoWeight ON CargoDelivery
+AFTER INSERT
+	,UPDATE
 AS
-DECLARE cursor_deliveries CURSOR FOR SELECT DISTINCT Delivery FROM inserted
+DECLARE cursor_deliveries CURSOR
+FOR
+SELECT DISTINCT Delivery
+FROM inserted
+
 OPEN cursor_deliveries
-DECLARE @delivery_id int
-FETCH NEXT FROM cursor_deliveries INTO @delivery_id
+
+DECLARE @delivery_id INT
+
+FETCH NEXT
+FROM cursor_deliveries
+INTO @delivery_id
+
 WHILE @@FETCH_STATUS = 0
+BEGIN
+	DECLARE @DeliveryWeight REAL
+
+	SET @DeliveryWeight = 0
+
+	DECLARE @courier_id INT
+		,@cargo_id INT
+
+	SELECT @courier_id = ISNULL((
+				SELECT Courier
+				FROM CourierDelivery
+				WHERE Delivery = @delivery_id
+				), - 1)
+
+	IF EXISTS (
+			SELECT *
+			FROM Courier
+			WHERE CourierID = @courier_id
+				AND Car = 0
+			)
 	BEGIN
-	DECLARE @DeliveryWeight real
-	SET @DeliveryWeight  = 0
-	DECLARE @courier_id int, @cargo_id int
-	SELECT @courier_id = Courier FROM CourierDelivery WHERE Delivery = @delivery_id
-		IF EXISTS (SELECT * FROM Courier WHERE CourierID = @courier_id AND Car = 0)
+		DECLARE cursor_cargo CURSOR LOCAL
+		FOR
+		SELECT Cargo
+		FROM inserted
+		WHERE Delivery = @delivery_id
+
+		OPEN cursor_cargo
+
+		FETCH
+		FROM cursor_cargo
+		INTO @cargo_id
+
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			SET @DeliveryWeight += (
+					SELECT CargoWeight
+					FROM Cargo
+					WHERE CargoID = @cargo_id
+					)
+
+			IF (@DeliveryWeight > 15000)
 			BEGIN
-			DECLARE cursor_cargo CURSOR LOCAL FOR SELECT Cargo FROM inserted WHERE Delivery = @delivery_id 
-			OPEN cursor_cargo
-			FETCH FROM cursor_cargo INTO @cargo_id 
-			WHILE @@FETCH_STATUS = 0
-				BEGIN
-					SET @DeliveryWeight += (SELECT CargoWeight
-											FROM Cargo
-											WHERE CargoID = @cargo_id)
-					IF (@DeliveryWeight > 15000) 
-						BEGIN
-						DELETE FROM CargoDelivery
-						WHERE Cargo = @cargo_id AND Delivery = @delivery_id
-						SET @DeliveryWeight -= (SELECT CargoWeight
-											FROM Cargo
-											WHERE CargoID = @cargo_id)
-						PRINT 'Масса доставки больше 15 кг запрещена для пешего курьера'
-						END
-				FETCH FROM cursor_cargo INTO @cargo_id
-				END
-			CLOSE cursor_cargo
-			DEALLOCATE cursor_cargo
-			FETCH NEXT FROM cursor_deliveries INTO @delivery_id
+				DELETE
+				FROM CargoDelivery
+				WHERE Cargo = @cargo_id
+					AND Delivery = @delivery_id
+
+				SET @DeliveryWeight -= (
+						SELECT CargoWeight
+						FROM Cargo
+						WHERE CargoID = @cargo_id
+						)
+
+				PRINT 'Масса доставки больше 15 кг запрещена для пешего курьера'
 			END
-	END	
+
+			FETCH NEXT
+			FROM cursor_cargo
+			INTO @cargo_id
+		END
+
+		CLOSE cursor_cargo
+
+		DEALLOCATE cursor_cargo
+
+		
+	END
+	FETCH NEXT
+	FROM cursor_deliveries
+	INTO @delivery_id
+END
+
 CLOSE cursor_deliveries
+
 DEALLOCATE cursor_deliveries
 GO
 
 
+--Курсор, запрещающий добавление курьеру доставки массой больше 15 кг, если у него нет автомобиля
+CREATE TRIGGER TDeliveryWeight ON CourierDelivery
+AFTER INSERT
+	,UPDATE
+AS
+DECLARE deliveries CURSOR
+FOR
+SELECT DISTINCT Delivery, Courier
+FROM inserted
 
+OPEN deliveries
+
+DECLARE @delivery_id INT
+	,@courier_id INT
+
+FETCH
+FROM deliveries
+INTO @delivery_id, @courier_id
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+	IF EXISTS (
+			SELECT *
+			FROM Courier
+			WHERE CourierID = @courier_id
+				AND Car = 0
+			)
+		IF 15000 < (
+				SELECT SUM(CargoWeight)
+				FROM Cargo
+				JOIN CargoDelivery ON CargoDelivery.Cargo = CargoID
+				WHERE Delivery = @delivery_id
+				)
+		BEGIN
+			DELETE
+			FROM CourierDelivery
+			WHERE Delivery = @delivery_id
+				AND Courier = @courier_id 
+
+			PRINT 'Масса доставки больше 15 кг запрещена для пешего курьера'
+		END
+
+	FETCH
+	FROM deliveries
+	INTO @delivery_id, @courier_id
+END
+
+CLOSE deliveries
+
+DEALLOCATE deliveries
+GO
+
+--Курсор, запрещающий добавлению курьеру доставок, уже доставляемых другими курьерами и в случае, если у него есть незавершенная доставка
+CREATE TRIGGER  TDeliveryStatus 
+ON CourierDelivery
+AFTER INSERT
+AS 
+DECLARE @delivery_id int, @courier_id int
+SELECT @delivery_id = Delivery, @courier_id = Courier
+FROM inserted
+IF EXISTS (SELECT * 
+			FROM Delivery JOIN CourierDelivery ON Delivery.DeliveryID = CourierDelivery.Delivery
+			WHERE DeliveryStatus != 5 AND Courier = @courier_id)
+			BEGIN
+			ROLLBACK TRAN
+			PRINT 'Курьер имеет незавершенные доставки'
+			END
+ELSE 
+	IF EXISTS (SELECT * 
+				FROM Delivery
+				WHERE @delivery_id = DeliveryID AND DeliveryStatus >= 4)
+			BEGIN
+			ROLLBACK TRAN
+			PRINT 'Доставка уже доставляется другим курьером'
+			END
+GO
+
+--триггер запрещаюший создавать курьера и пользователя с одинаковым ID	
+CREATE TRIGGER TUserClient
+ON Client
+AFTER INSERT, UPDATE
+AS
+DECLARE @UserId int
+SELECT @UserId = ClientID FROM inserted
+IF EXISTS (SELECT * FROM Courier WHERE @UserId = CourierID)
+	BEGIN
+	ROLLBACK TRAN
+	PRINT 'Невозможно добавить пользователя с ID как у курьера'
+	END
+GO
+--триггер запрещаюший создавать курьера и пользователя с одинаковым ID
+CREATE TRIGGER TUserCourier
+ON Courier
+AFTER INSERT, UPDATE
+AS
+DECLARE @UserId int
+SELECT @UserId = CourierID FROM inserted
+IF EXISTS (SELECT * FROM Client WHERE @UserId = ClientID)
+	BEGIN
+	ROLLBACK TRAN
+	PRINT 'Невозможно добавить курьера с ID как у пользователя'
+	END
+GO
+
+
+
+INSERT INTO City 
+VALUES (0, 'Рязань'),
+		(1, 'Рыбное'),
+		(2, 'Москва')
+
+INSERT INTO Tariff 
+VALUES (0, 'Обычный', 350, 0, 0),
+		(1, 'Быстрый', 450, 0, 0), 
+		(2, 'Хрупкий', 600, 1, 0),
+		(3, 'Токсичный', 1200, 0, 1),
+		(4, 'Все включено', 2000, 1, 1)
+GO
+
+INSERT INTO DeliveryStatus 
+VALUES (0, 'Передан в обработку'), 
+		(1, 'В обработке'),
+		(2, 'В пути'), 
+		(3, 'На складе'), 
+		(4, 'Передан курьеру'),
+		(5, 'Доставлен')
+GO	
+
+INSERT INTO Storage 
+VALUES (0, 'Южный-1', 300, 0, 'Михайловское шоссе, 15'),
+		(1, 'Северный-1', 150, 0, 'ул. Бирюзова, 16'),
+		(2, 'Столичный-1', 1300, 2,'Новорязанское шоссе, 34')
+GO
+
+INSERT INTO Postamat
+VALUES (0, 0, 'ул. Мервинская, 30. Магазин "Пятерочка', 20),
+		(1, 0, 'ул. Октябрьский городок, 35', 20)
+GO
+
+INSERT INTO CargoType
+VALUES (0, 'Письмо'),
+		(1, 'Бандероль'),
+		(2, 'Посылка'), 
+		(3, 'Коробка'),
+		(4, 'Большая коробка'),
+		(5, 'Негабаритный'), 
+		(6, 'Токсичный'),
+		(7, 'Хрупкий')
+GO
+
+INSERT INTO PartnerCompany
+VALUES (0, 'Fragile Express', '79995553333', 'Рязань, Московское шоссе, 5а'),
+		(1, 'Bridges', '79995553334', 'Рязань, ул. Зубкова, 17')
+GO
+
+
+
+INSERT INTO Delivery 
+VALUES (0, '2', 0, NULL, NULL, NULL, NULL, 0, 0, 350)
+GO
+
+INSERT INTO Cargo 
+	VALUES (0, 0, 'Письмо', 1, 1, '10-05-2022', '15:00', 100, 1, 15, 7)
+GO
 
 INSERT INTO CargoDelivery 
-VALUES (13, 1)
-DELETE FROM CargoDelivery
-WHERE Cargo = 13
-
-select * from Tariff
-
-SELECT * FROM Cargo
-
-select * from CourierDelivery
-SELECT * FROM Client
-
-exec AddCargo 0, 'Пуд пуха', NULL, 1, 16000, 15, 15, 15 
-
-
-select * from Delivery
-
-update Courier 
-SET Car = 0
-WHERE CourierID = 9
-INSERT INTO CourierDelivery
-VALUES (9, 1, GETDATE(), CURRENT_TIMESTAMP)
-
-SELECT * FROM CargoDelivery
-SELECT * FROM Delivery
-
+VALUES (0, 0)
+GO
